@@ -1,6 +1,6 @@
-const { check, validationResult } = require('express-validator');
 const connection = require('../dbConfig');
 
+// POST req
 exports.organizeEvent = (req, res) => {
     let {
         event_name,
@@ -69,6 +69,7 @@ exports.organizeEvent = (req, res) => {
     });
 }
 
+// POST req
 exports.attendEvent = (req, res) => {
     let {user_id, event_id,chance_of_attending} = req.body;
 
@@ -88,5 +89,24 @@ exports.attendEvent = (req, res) => {
         return res.status(200).json({
             msg: "Successfully registered"
         });
+    });
+}
+
+// GET req
+exports.upcommingEventList = (req, res) => {
+    let { activeUserId } = req.params;
+    var sql = `SELECT e.*,u.fname,u.lname,u.email,u.mobileno
+    FROM events e, users u, event_organizers eo, event_registration er
+    WHERE e.id = eo.event_id and eo.user_id = u.id and eo.is_event_head = true
+    and er.user_id != ${activeUserId};`;
+
+    connection.query(sql, (err, result) => {
+        if(err){
+            console.log(`ERROR: ${err}`);
+            return res.status(400).json({
+                msg: "Unable to get upcomming event list"
+            });
+        }
+        return res.status(200).json(result.rows);
     });
 }
