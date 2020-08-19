@@ -1,6 +1,6 @@
 const connection = require('../dbConfig');
 
-// POST req
+// Create
 exports.organizeEvent = (req, res) => {
     let {
         event_name,
@@ -69,7 +69,7 @@ exports.organizeEvent = (req, res) => {
     });
 }
 
-// POST req
+// Create
 exports.attendEvent = (req, res) => {
     let {user_id, event_id,chance_of_attending} = req.body;
 
@@ -92,7 +92,28 @@ exports.attendEvent = (req, res) => {
     });
 }
 
-// GET req
+// Delete
+exports.cancelRegistration = (req, res) => {
+    let eventId = req.params.eventId;
+    let userId = req.params.userId;
+
+    var sql = `DELETE FROM event_registration
+    WHERE user_id = ${userId} and event_id = ${eventId};`;
+    connection.query(sql, (err, result) => {
+        if(err){
+            console.log("ERROR: "+err);
+            return res.status(400).json({
+                msg:"Unable to cancel your registration..try again!!"
+            });
+        }
+        console.log(res)
+        return res.status(200).json({
+            msg: "Your registration cancelled successfully"
+        });
+    })
+}
+
+// Read
 exports.upcommingEventList = (req, res) => {
     let { activeUserId } = req.params;
     var sql = `SELECT e.*,u.fname,u.lname,u.email,u.mobileno

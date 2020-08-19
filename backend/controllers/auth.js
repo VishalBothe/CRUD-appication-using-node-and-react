@@ -11,7 +11,6 @@ exports.signup = (req, res) => {
             msg: errors.array()[0].msg
         });
     }
-    console.log(req);
     let {fname, lname, email, mobileno, password} = req.body;
 
     var sql = `INSERT INTO users(fname,lname,email,mobileno,password,created_at)\
@@ -78,15 +77,26 @@ exports.isSignedIn = expressjwt({
 
 // Custom middlewares
 
+// exports.isAuthenticated = (req, res, next) => {
+//     let verified = req.profile && req.auth && req.profile.id == req.auth.id;
+//     if(!verified){
+//         return res.status(550).json({
+//             msg: "Access Denied !!"
+//         });
+//     }
+//     next();
+// }
+
 exports.isAuthenticated = (req, res, next) => {
-    let verified = req.profile && req.auth && req.profile.id == req.auth.id;
-    if(!verified){
+    let verified = req.params && req.auth && req.params.userId == req.auth._id;
+    if (!verified) {
         return res.status(550).json({
-            msg: "Access Denied !!"
+            err: "Access denied!!"
         });
     }
     next();
 }
+
 
 exports.encryptPassword = (req, res, next) => {
     let {password} = req.body;
